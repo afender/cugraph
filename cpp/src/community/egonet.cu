@@ -34,6 +34,8 @@
 #include <experimental/graph_functions.hpp>
 #include <experimental/graph_view.hpp>
 
+#include <utilities/high_res_timer.hpp>
+
 namespace {
 
 /*
@@ -76,7 +78,11 @@ extract(
   // reserve some reasonable memory, but could grow larger than that
   neighbors.reserve(v + avg_degree * n_subgraphs * radius);
   neighbors_offsets[0] = 0;
-  // each source should be done concurently in the future
+// each source should be done concurently in the future
+#ifdef TIMING
+  HighResTimer hr_timer;
+  hr_timer.start("ego_neighbors");
+#endif
   for (vertex_t i = 0; i < n_subgraphs; i++) {
     // BFS with cutoff
     rmm::device_vector<vertex_t> reached(v);
@@ -112,7 +118,10 @@ extract(
       neighbors.reserve(neighbors_offsets[i + 1] * 2);
     neighbors.insert(neighbors.end(), reached.begin(), reached_end);
   }
-
+#ifdef TIMING
+  hr_timer.stop();
+  hr_timer.display(std::cout);
+#endif
   // extract
   return cugraph::experimental::extract_induced_subgraphs(
     handle, csr_view, neighbors_offsets.data().get(), neighbors.data().get(), n_subgraphs);

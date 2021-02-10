@@ -58,6 +58,10 @@ function(ConfigureTest CMAKE_TEST_NAME CMAKE_TEST_SRC CMAKE_EXTRA_LIBS)
 
     if(OpenMP_CXX_FOUND)
         target_link_libraries(${CMAKE_TEST_NAME} PRIVATE
+
+
+    
+
 ###################################################################################################
 ###   Use ${OpenMP_CXX_LIB_NAMES} instead of OpenMP::OpenMP_CXX to avoid the following warnings.
 ###
